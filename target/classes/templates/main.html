@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>Dashboard Template for Bootstrap</title>
+		<!-- Bootstrap core CSS -->
+		<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link th:href="@{/css/dashboard.css}" rel="stylesheet">
+		<style type="text/css">
+			/* Chart.js */
+			
+			@-webkit-keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			@keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			.chartjs-render-monitor {
+				-webkit-animation: chartjs-render-animation 0.001s;
+				animation: chartjs-render-animation 0.001s;
+			}
+		</style>
+	</head>
+
+	<body>
+		<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+			<a class="navbar-brand col-sm-3 col-md-2 mr-0"><span style="color: gainsboro" th:text="${session.username}"></span></a>
+			<input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+			<ul class="navbar-nav px-3">
+				<li class="nav-item text-nowrap">
+					<a class="nav-link" th:href="@{/logout}">Sign out</a>
+				</li>
+			</ul>
+		</nav>
+
+		<div class="container-fluid">
+			<div class="row">
+				<nav class="col-md-2 d-none d-md-block bg-light sidebar">
+					<div class="sidebar-sticky">
+						<ul class="nav flex-column">
+							<li class="nav-item">
+								<a class="nav-link active" href="">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home">
+										<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+										<polyline points="9 22 9 12 15 12 15 22"></polyline>
+									</svg>
+									Dashboard <span class="sr-only">(current)</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="">
+									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+										<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+										<polyline points="13 2 13 9 20 9"></polyline>
+									</svg>
+									Orders
+								</a>
+							</li>
+
+						</ul>
+					</div>
+				</nav>
+
+				<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+					<!-- Button trigger modal -->
+					<button id="ModalBtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+						新增员工
+					</button>
+					<!-- Modal -->
+					<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="exampleModalLabel">添加新员工</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form id="addEmpForm">
+										<div class="form-group row">
+											<div id="addEmpName">
+												姓名：<input type="text" required name="name" id="empNameInput">
+											</div>
+										</div>
+										<div class="form-group row">
+											<div id="addEmail">
+												生日：<input type="text" required name="birth" id="emailInput">
+												<div style="color: red" id="addEmailShow"></div>
+											</div>
+										</div>
+										<div class="form-group row">
+											<div id="addGender">
+												性别：<input type="radio" name="gender" checked="checked" value="0">女
+												<input type="radio" name="gender" value="1">男
+											</div>
+										</div>
+										<div class="form-group row">
+											<div id="addDepartment">
+												部门：
+												<div id="departmentInputDiv">
+													<select id="departmentInput" required name="deptId" class="form-select" aria-label="Default select example">
+														<option selected value="0">请选择部门</option>
+													</select>
+												</div>
+											</div>
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-dismiss="modal" id="noSubmit">放弃</button>
+									<button type="button" class="btn btn-primary" id="addEmpSubmit">提交</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-striped table-sm">
+							<thead>
+							<tr>
+								<th>id</th>
+								<th>name</th>
+								<th>birth</th>
+								<th>gender</th>
+								<th>department</th>
+								<th>operation</th>
+							</tr>
+							</thead>
+							<tbody>
+							<tr th:each="employee : ${employees}">
+								<td th:text="${employee.id}">id</td>
+								<td th:text="${employee.name}">name</td>
+								<td th:text="${#dates.format(employee.birth, 'yyyy-MM-dd')}">birth</td>
+								<td th:text="${employee.gender}==1?'男':'女'">gender</td>
+								<td th:text="${employee.department.name}">dname</td>
+								<td>
+									<button class="updateEmployee btn btn-sm btn-primary" th:attr="empId=${employee.id}">修改</button>
+									<button class="removeEmployee btn btn-sm btn-danger" th:attr="empId=${employee.id}">删除</button>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</main>
+			</div>
+		</div>
+
+
+		<!-- Modal 修改员工信息模态框-->
+
+		<!-- Bootstrap core JavaScript
+    ================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript" th:src="@{/js/jquery-3.2.1.slim.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/popper.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/bootstrap.min.js}" ></script>
+		<script type="text/javascript" th:src="@{/js/jquery-3.6.0.js}" ></script>
+
+		<!-- Icons -->
+		<script type="text/javascript" th:src="@{/js/feather.min.js}" ></script>
+		<script>
+			feather.replace()
+		</script>
+
+		<!-- Graphs -->
+		<script type="text/javascript" th:src="@{/js/Chart.min.js}" ></script>
+		<script>
+			$(".departmentOption").remove();
+			/*将部门信息加载到下拉菜单中*/
+			$.ajax({
+				url:"departments",
+				type:"GET",
+				success:function (result) {
+					var departments = result;
+					$.each(departments,function (index,department) {
+						var option = $("<option></option>").append(department.name).attr("value",department.id).addClass("departmentOption");
+						option.appendTo($("#departmentInput"));
+					})
+				}
+			});
+
+			$("#addEmpSubmit").click(function (){
+				let empSerialize = $("#addEmpForm").serialize();
+				$.ajax({
+					url:"saveEmployee",
+					type:"POST",
+					data:empSerialize,
+					success:function (result) {
+						location.reload()
+						alert("员工添加成功");
+					}
+				});
+			});
+
+			$(".removeEmployee").click(function (){
+				var id= $(this).attr("empid");
+				alert(id);
+				$.ajax({
+					url:"deleteEmployee",
+					type:"POST",
+					data:"id="+id,
+					success:function (result) {
+						location.reload()
+						alert("删除成功");
+					}
+				});
+			})
+
+			$(".updateEmployee").click(function (){
+				let id = $(this).attr("empid");
+				alert("修改功能尚未实现 id="+id);
+			})
+		</script>
+
+	</body>
+
+</html>
